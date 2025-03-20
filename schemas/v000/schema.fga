@@ -1,0 +1,89 @@
+model
+  schema 1.1
+
+type user
+
+type organization
+  relations
+    define owner: [user]
+    define admin: [user] or owner
+    define member: [user] or admin # Owners and admins are also members
+
+    # Crud
+    define can_read: member
+    define can_edit: admin
+    define can_delete: owner
+
+    # User management
+    define can_invite_member: admin # Admins and owners can invite
+    define can_promote_member: admin
+    define can_demote_admin: admin
+    define can_remove_admin: admin
+    define can_remove_member: admin
+
+    # Payments
+    define can_manage_payment_plan: admin
+
+    # Resource creation
+    define can_create_team: admin
+    define can_create_source_control_connection: admin
+    define can_create_repository: admin
+
+type source_control_connection
+  relations
+    # Parent resource
+    define organization: [organization]
+
+    # Crud
+    define can_read: member from organization
+    define can_delete: admin from organization
+
+type repository
+  relations
+    # Parent resource
+    define organization: [organization]
+
+    # Crud
+    define can_read: member from organization
+    define can_edit: admin from organization
+    define can_delete: admin from organization
+
+    # Resource creation
+    define can_create_learning: can_read
+
+type alert_scan
+  relations
+    # Parent resource
+    define repository: [repository]
+
+    # Crud
+    define can_read: can_read from repository
+
+type repository_index
+  relations
+    # Parent resource
+    define repository: [repository]
+
+    # Crud
+    define can_read: can_read from repository
+
+type learning
+  relations
+    # Parent resource
+    define repository: [repository]
+
+    # Crud
+    define can_read: can_read from repository
+    define can_edit: can_read from repository
+    define can_delete: can_read from repository
+
+type notification
+  relations
+    # Parent resource
+    define receiver: [user]
+
+    # Crud
+    define can_read: receiver
+
+    # Notification management
+    define can_mark_as_read: receiver

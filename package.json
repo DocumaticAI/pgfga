@@ -1,0 +1,20 @@
+{
+  "name": "pgfga",
+  "scripts": {
+    "test:unit": "fga model test --tests schemas/v000/tests.fga.yaml",
+    "lint": "bun ./scripts/validate-all.ts",
+    "check-types": "tsc --noEmit",
+    "format": "bun biome format --write .",
+    "new": "bun ./scripts/new.ts",
+    "finalize": "bun ./scripts/finalize.ts",
+    "migrate": "bun ./scripts/migrate.ts"
+  },
+  "dependencies": {
+    "@arda/db": "workspace:*",
+    "@arda/utils": "workspace:*",
+    "drizzle-orm": "0.40.0",
+    "postgres": "3.4.5",
+    "prexit": "2.3.0",
+    "zod": "3.23.8"
+  }
+}

@@ -15,11 +15,13 @@ declare
     v_parent_object_id text;
     v_has_permission boolean := false;
 begin
+    raise debug 'Checking: user % has relation % on object %', p_user_id, p_relation, p_object_id;
+
     -- 0. Check for 'from <relation>' parent context first.
     -- This is likely to be the most common case as most of our relations are
     -- inherited, so check it first.
-    select am.parent_relation
-    into v_parent_relation
+    select am.parent_relation, am.implied_by
+    into v_parent_relation, v_implied_by
     from unnest(p_authz_model) as am
     where entity_type = p_object_type
       and relation = p_relation;
@@ -39,8 +41,8 @@ begin
 
         if v_parent_object_id is not null then
             -- Recursively check permission in the parent context (same relation, but on parent object)
-            select check_permission(p_authz_model, p_user_type, p_user_id, p_relation, v_parent_relation, v_parent_object_id) into v_has_permission;
-            raise debug 'Permission in Parent Context (% % % % %): %', p_user_id, p_user_type, p_relation, v_parent_object_id, v_parent_relation, v_has_permission;
+            select check_permission(p_authz_model, p_user_type, p_user_id, v_implied_by, v_parent_relation, v_parent_object_id) into v_has_permission;
+            raise debug 'Permission in Parent Context (% % % % %): %', p_user_id, p_user_type, v_implied_by, v_parent_object_id, v_parent_relation, v_has_permission;
             if v_has_permission then
                 return true; -- Permission inherited from parent context
             end if;
